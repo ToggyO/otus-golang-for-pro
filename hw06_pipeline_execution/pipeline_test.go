@@ -90,4 +90,55 @@ func TestPipeline(t *testing.T) {
 		require.Len(t, result, 0)
 		require.Less(t, int64(elapsed), int64(abortDur)+int64(fault))
 	})
+
+	t.Run("input channel is not initialized (prevent lock on trying to get data from nil chan)", func(t *testing.T) {
+		require.Nil(t, ExecutePipeline(nil, nil, stages...), "Are you handle case, when input chan is nil?")
+	})
+
+	t.Run("when stage slice is empty", func(t *testing.T) {
+		in := make(Bi)
+		data := []int{1, 2, 3, 4, 5}
+
+		go func() {
+			for _, v := range data {
+				in <- v
+			}
+			close(in)
+		}()
+
+		result := make([]int, 0, 10)
+		for s := range ExecutePipeline(in, nil, []Stage{}...) {
+			result = append(result, s.(int))
+		}
+
+		require.Equal(t, []int{1, 2, 3, 4, 5}, result, "input data must not be mutated if stage slice is empty")
+	})
+
+	t.Run("does not panic when stage is nil", func(t *testing.T) {
+		defer func(t *testing.T) {
+			t.Helper()
+			if r := recover(); r != nil {
+				t.Errorf("pipeline panics, when any stage is nil")
+			}
+		}(t)
+
+		in := make(Bi)
+		data := []int{1, 2, 3, 4, 5}
+
+		go func() {
+			for _, v := range data {
+				in <- v
+			}
+			close(in)
+		}()
+
+		action := g("Multiplier (* 2)", func(v interface{}) interface{} { return v.(int) * 2 })
+
+		result := make([]int, 0, 10)
+		for s := range ExecutePipeline(in, nil, nil, action) {
+			result = append(result, s.(int))
+		}
+
+		require.Equal(t, []int{2, 4, 6, 8, 10}, result)
+	})
 }
