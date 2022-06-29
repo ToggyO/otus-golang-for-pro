@@ -107,7 +107,7 @@ func TestRun(t *testing.T) {
 }
 
 // TODO: Скажу честно - выполнил задание со звездочкой после занятия по разбору ДЗ.
-// Применил sync.Cond, чтобы заставить таски ожидать команды к завершению
+// Применил sync.Cond, чтобы заставить таски ожидать команды к завершению.
 func TestConcurrencyEventually(t *testing.T) {
 	tasksCount := 5
 	workersCount := 5
@@ -128,8 +128,8 @@ func TestConcurrencyEventually(t *testing.T) {
 		})
 	}
 
+	wg.Add(1)
 	go func(wg *sync.WaitGroup) {
-		wg.Add(1)
 		defer wg.Done()
 		tasksCountInt32 := int32(tasksCount)
 		for {
