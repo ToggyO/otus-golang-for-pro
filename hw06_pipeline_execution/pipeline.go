@@ -40,7 +40,13 @@ func handleStage(done In, in In) Out {
 				if !ok {
 					return
 				}
-				tempChan <- item
+
+				// Добавил select после занятия по разбору ДЗ
+				select {
+				case <-stop:
+					return
+				case tempChan <- item:
+				}
 			}
 		}
 	}(done, in)
