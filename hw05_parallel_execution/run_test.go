@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"math/rand"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -105,75 +106,49 @@ func TestRun(t *testing.T) {
 	})
 }
 
-// TODO: Прошу помочь с написанием теста.
-// В соответствии с комментарием от Олега Венгера:
-// "привет, всё верно. необходимо ограничить сверху время ожидания завершения тасок.
-// Но тут скорее нужно подумать, как можно запустить n тасок чтобы они все были заблокированы и чего-то ждали.
-// А потом сразу всем сказать закончили.
-// Тогда в целом при запуске eventually можно прикинуть, что для завершения всех тасок потребуется сколько-то времени"
+// TODO: Скажу честно - выполнил задание со звездочкой после занятия по разбору ДЗ.
+// Применил sync.Cond, чтобы заставить таски ожидать команды к завершению
+func TestConcurrencyEventually(t *testing.T) {
+	tasksCount := 5
+	workersCount := 5
+	maxErrorsCount := 1
 
-// Я, с помощью sync.Cond, смог запустить все таски одновременно и
-// заставить их ждать сигнала. Но, как посчитать время их выполнения для
-// аргумента waitFor у require.Eventually, я не могу понять.
-// Подскажите, пожалуйста, в верном направлении я двигаюсь? Мне жутко интересно, как это можно сделать
+	tasks := make([]Task, 0, tasksCount)
+	cond := sync.NewCond(&sync.Mutex{})
+	wg := sync.WaitGroup{}
 
-// Тест-кейс представлен ниже
+	var runTasksCount int32
+	for i := 0; i < tasksCount; i++ {
+		tasks = append(tasks, func() error {
+			atomic.AddInt32(&runTasksCount, 1)
+			cond.L.Lock()
+			cond.Wait()
+			cond.L.Unlock()
+			return nil
+		})
+	}
 
-// t.Run("tasks without errors with eventually", func(t *testing.T) {
-//	tasksCount := 50
-//	tasks := make([]Task, 0, tasksCount)
-//
-//	var runTasksCount int32
-//
-//	wg := sync.WaitGroup{}
-//	once := sync.Once{}
-//	cond := sync.NewCond(&sync.Mutex{})
-//	workersCount := tasksCount
-//	maxErrorsCount := 1
-//
-//	var start time.Time
-//	var elapsed time.Duration
-//
-//	for i := 0; i < tasksCount; i++ {
-//		tasks = append(tasks, func() error {
-//			once.Do(func() {
-//				start = time.Now()
-//			})
-//
-//			atomic.AddInt32(&runTasksCount, 1)
-//			cond.L.Lock()
-//			cond.Wait()
-//			cond.L.Unlock()
-//			return nil
-//		})
-//	}
-//
-//	go func(wg *sync.WaitGroup) {
-//		wg.Add(1)
-//		defer wg.Done()
-//		tasksCountInt32 := int32(tasksCount)
-//		for {
-//			if atomic.LoadInt32(&runTasksCount) == tasksCountInt32 {
-//				cond.Broadcast()
-//				elapsed = time.Since(start)
-//				break
-//			}
-//		}
-//	}(&wg)
-//
-//	condition := func() bool {
-//		err := Run(tasks, workersCount, maxErrorsCount)
-//		return err == nil
-//	}
-//
-//	//err := Run(tasks, workersCount, maxErrorsCount)
-//	//require.NoError(t, err)
-//
-//	require.Eventually(t, condition, time.Second*10, 1*time.Millisecond, "tasks were run sequentially?")
-//	//require.Eventually(t, func() bool {
-//	//	return true
-//	//}, elapsed, 1*time.Millisecond, "tasks were run sequentially?")
-//	require.Equal(t, runTasksCount, int32(tasksCount), "not all tasks were completed")
-//	fmt.Println(elapsed)
-//	wg.Wait()
-// })
+	go func(wg *sync.WaitGroup) {
+		wg.Add(1)
+		defer wg.Done()
+		tasksCountInt32 := int32(tasksCount)
+		for {
+			if atomic.LoadInt32(&runTasksCount) == tasksCountInt32 {
+				cond.Broadcast()
+				break
+			}
+		}
+	}(&wg)
+
+	errChan := make(chan error)
+	go func() {
+		errChan <- Run(tasks, workersCount, maxErrorsCount)
+	}()
+
+	require.Eventually(t, func() bool {
+		return atomic.LoadInt32(&runTasksCount) == int32(workersCount)
+	}, time.Second, time.Millisecond)
+	wg.Wait()
+
+	require.NoError(t, <-errChan)
+}
