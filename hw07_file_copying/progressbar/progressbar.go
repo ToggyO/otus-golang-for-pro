@@ -1,4 +1,4 @@
-package progress_bar
+package progressbar
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-const DEFAULT_REFRESH_RATE = time.Millisecond * 200
+const DefaultRefreshRate = time.Millisecond * 200
 
 type ProgressBar struct {
 	cur     int64
@@ -27,7 +27,7 @@ func NewProgressBar(total int64) *ProgressBar {
 		total: total,
 
 		finish:      make(chan struct{}),
-		refreshRate: DEFAULT_REFRESH_RATE,
+		refreshRate: DefaultRefreshRate,
 	}
 }
 

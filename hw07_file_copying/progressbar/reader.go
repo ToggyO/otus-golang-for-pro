@@ -1,4 +1,4 @@
-package progress_bar
+package progressbar
 
 import "io"
 

@@ -7,7 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/ToggyO/otus-golang-for-pro/hw07_file_copying/progress_bar"
+	"github.com/ToggyO/otus-golang-for-pro/hw07_file_copying/progressbar"
 )
 
 const (
@@ -44,7 +44,7 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 		return err
 	}
 
-	progressBar := progress_bar.NewProgressBar(limit)
+	progressBar := progressbar.NewProgressBar(limit)
 	progressBar.Start()
 	reader := progressBar.NewProxyReader(src)
 
