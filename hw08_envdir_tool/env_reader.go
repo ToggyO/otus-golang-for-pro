@@ -54,11 +54,6 @@ func ReadDir(dir string) (Environment, error) {
 		if err != nil {
 			return nil, err
 		}
-
-		err = f.Close()
-		if err != nil {
-			return nil, err
-		}
 	}
 
 	return env, nil
@@ -66,7 +61,7 @@ func ReadDir(dir string) (Environment, error) {
 
 func handleEnv(envMap Environment, file *os.File, fileName string) error {
 	reader := bufio.NewReader(file)
-	line, _, err := reader.ReadLine()
+	line, err := reader.ReadBytes('\n')
 	if err != nil && !errors.Is(err, io.EOF) {
 		return err
 	}
@@ -79,6 +74,10 @@ func handleEnv(envMap Environment, file *os.File, fileName string) error {
 	}
 
 	envMap[fileName] = EnvValue{Value: envVar, NeedRemove: stat.Size() == 0}
+	err = file.Close()
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
