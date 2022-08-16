@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"errors"
 	"io"
-	"regexp"
 	"strings"
 
 	"github.com/mailru/easyjson"
@@ -32,7 +31,6 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 	}
 
 	result := make(DomainStat)
-	reg := regexp.MustCompile("\\." + domain)
 
 	scanner := bufio.NewScanner(r)
 	scanner.Split(bufio.ScanLines)
@@ -44,7 +42,7 @@ func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
 			return nil, err
 		}
 
-		if reg.Match([]byte(user.Email)) {
+		if strings.HasSuffix(user.Email, domain) {
 			f := strings.ToLower(strings.SplitN(user.Email, separator, 2)[1])
 			result[f]++
 		}

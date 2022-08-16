@@ -19,6 +19,7 @@ func BenchmarkGetDomainStat(b *testing.B) {
 
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
+		b.StopTimer()
 		reader, err := zip.OpenReader("./testdata/users.dat.zip")
 		if err != nil {
 			b.Fatal()
@@ -29,6 +30,7 @@ func BenchmarkGetDomainStat(b *testing.B) {
 			b.Fatal()
 		}
 
+		b.StartTimer()
 		if *isOld {
 			_, _ = GetDomainStatOld(file, domain)
 			continue
