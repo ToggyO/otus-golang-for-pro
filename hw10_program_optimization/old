@@ -1,0 +1,27 @@
+goos: darwin
+goarch: amd64
+pkg: github.com/ToggyO/otus-golang-for-pro/hw10_program_optimization
+cpu: Intel(R) Core(TM) i7-4770HQ CPU @ 2.20GHz
+BenchmarkGetDomainStat-8   	      19	 623515940 ns/op	315287883 B/op	 2845427 allocs/op
+--- BENCH: BenchmarkGetDomainStat-8
+    stats_bench_test.go:18: benching GetDomainStatOld
+    stats_bench_test.go:18: benching GetDomainStatOld
+    stats_bench_test.go:18: benching GetDomainStatOld
+BenchmarkGetDomainStat-8   	      18	 673051706 ns/op	315269808 B/op	 2845425 allocs/op
+--- BENCH: BenchmarkGetDomainStat-8
+    stats_bench_test.go:18: benching GetDomainStatOld
+    stats_bench_test.go:18: benching GetDomainStatOld
+BenchmarkGetDomainStat-8   	      16	 668118913 ns/op	315271012 B/op	 2845425 allocs/op
+--- BENCH: BenchmarkGetDomainStat-8
+    stats_bench_test.go:18: benching GetDomainStatOld
+    stats_bench_test.go:18: benching GetDomainStatOld
+BenchmarkGetDomainStat-8   	      18	 640930262 ns/op	315267410 B/op	 2845423 allocs/op
+--- BENCH: BenchmarkGetDomainStat-8
+    stats_bench_test.go:18: benching GetDomainStatOld
+    stats_bench_test.go:18: benching GetDomainStatOld
+BenchmarkGetDomainStat-8   	      19	 613756699 ns/op	315289801 B/op	 2845427 allocs/op
+--- BENCH: BenchmarkGetDomainStat-8
+    stats_bench_test.go:18: benching GetDomainStatOld
+    stats_bench_test.go:18: benching GetDomainStatOld
+PASS
+ok  	github.com/ToggyO/otus-golang-for-pro/hw10_program_optimization	71.317s
