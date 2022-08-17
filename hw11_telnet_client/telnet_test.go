@@ -13,8 +13,7 @@ import (
 
 func TestTelnetClient(t *testing.T) {
 	t.Run("basic", func(t *testing.T) {
-		l, err := net.Listen("tcp", "127.0.0.1:")
-		require.NoError(t, err)
+		l := getListener(t)
 		defer func() { require.NoError(t, l.Close()) }()
 
 		var wg sync.WaitGroup
@@ -26,15 +25,14 @@ func TestTelnetClient(t *testing.T) {
 			in := &bytes.Buffer{}
 			out := &bytes.Buffer{}
 
-			timeout, err := time.ParseDuration("10s")
-			require.NoError(t, err)
+			timeout := getDuration(t)
 
 			client := NewTelnetClient(l.Addr().String(), timeout, ioutil.NopCloser(in), out)
 			require.NoError(t, client.Connect())
 			defer func() { require.NoError(t, client.Close()) }()
 
 			in.WriteString("hello\n")
-			err = client.Send()
+			err := client.Send()
 			require.NoError(t, err)
 
 			err = client.Receive()
@@ -62,4 +60,47 @@ func TestTelnetClient(t *testing.T) {
 
 		wg.Wait()
 	})
+
+	t.Run("call Connect() multiple times", func(t *testing.T) {
+		l := getListener(t)
+		defer func() { require.NoError(t, l.Close()) }()
+
+		timeout := getDuration(t)
+		client := NewTelnetClient(l.Addr().String(), timeout, ioutil.NopCloser(&bytes.Buffer{}), &bytes.Buffer{})
+
+		err := client.Connect()
+		require.NoError(t, err)
+
+		err = client.Connect()
+		require.ErrorIs(t, err, ErrMultipleConnections)
+	})
+
+	t.Run("nil in or out channels", func(t *testing.T) {
+		l := getListener(t)
+		defer func() { require.NoError(t, l.Close()) }()
+
+		timeout := getDuration(t)
+		client := NewTelnetClient(l.Addr().String(), timeout, nil, nil)
+
+		err := client.Connect()
+		require.ErrorIs(t, err, ErrNotNilMessenger)
+	})
+}
+
+func getListener(t *testing.T) net.Listener {
+	t.Helper()
+
+	l, err := net.Listen("tcp", "127.0.0.1:")
+	require.NoError(t, err)
+
+	return l
+}
+
+func getDuration(t *testing.T) time.Duration {
+	t.Helper()
+
+	timeout, err := time.ParseDuration("10s")
+	require.NoError(t, err)
+
+	return timeout
 }
