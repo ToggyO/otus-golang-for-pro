@@ -1,26 +1,34 @@
 package app
 
 import (
-	"context"
+	appcore "github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/app/core"
+	sqlstorage "github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/storage/sql"
+	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/storage/sql/repositories"
 )
 
-type App struct { // TODO
+type Application struct { // TODO
+	serviceProvider *serviceProvider
+	logger          appcore.ILogger
+	storage         appcore.IStorage
 }
 
-type Logger interface { // TODO
+func NewApplication(logger appcore.ILogger, , inMemoryStorage bool) *Application {
+	sqlStorageModule := sqlstorage.NewSqlStorageModule()
+	sp := &serviceProvider{
+		db: storage,
+		eventsRepository: repositories.NewEventsRepository(,
+	}
+	return &Application{}
 }
 
-type Storage interface { // TODO
+func (a *Application) prepareServiceProvider() *serviceProvider {
+	return
 }
 
-func New(logger Logger, storage Storage) *App {
-	return &App{}
-}
-
-func (a *App) CreateEvent(ctx context.Context, id, title string) error {
-	// TODO
-	return nil
-	// return a.storage.CreateEvent(storage.Event{ID: id, Title: title})
-}
+//func (a *App) CreateEvent(ctx context.Context, id, title string) error {
+//	// TODO
+//	return nil
+//	// return a.storage.CreateEvent(storage.Event{ID: id, Title: title})
+//}
 
 // TODO

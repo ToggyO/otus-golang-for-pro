@@ -3,15 +3,16 @@ package main
 import (
 	"context"
 	"flag"
+	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/config"
+	sqlstorage "github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/storage/sql"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/app"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/server/http"
-	memorystorage "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage/memory"
+	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/app"
+	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/logger"
+	internalhttp "github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/server/http"
 )
 
 var configFile string
@@ -28,11 +29,12 @@ func main() {
 		return
 	}
 
-	config := NewConfig()
-	logg := logger.New(config.Logger.Level)
+	config := config.NewConfig(configFile)
+	logg := logger.New(config.Logger.Level, config.IsDev, nil)
 
-	storage := memorystorage.New()
-	calendar := app.New(logg, storage)
+	//storage := memorystorage.New()
+	storage := sqlstorage.NewDbClient(config.Storage)
+	calendar := app.NewApplication(logg, storage)
 
 	server := internalhttp.NewServer(logg, calendar)
 

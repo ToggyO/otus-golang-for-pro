@@ -1,20 +1,56 @@
 package logger
 
-import "fmt"
+import (
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"io"
+)
 
-type Logger struct { // TODO
+type Logger struct {
+	logger *zap.Logger
 }
 
-func New(level string) *Logger {
-	return &Logger{}
+func New(level string, isDev bool, output io.Writer) *Logger {
+	loggerBuilder := NewLoggerBuilder(level, isDev)
+	return &Logger{
+		logger: loggerBuilder.BuildAdvancedLogger(output),
+	}
 }
 
-func (l Logger) Info(msg string) {
-	fmt.Println(msg)
+func (l *Logger) Debug(message string) {
+	if l.checkLevel(zapcore.DebugLevel) {
+		l.logger.Debug(message)
+	}
 }
 
-func (l Logger) Error(msg string) {
-	// TODO
+func (l *Logger) Info(message string) {
+	if l.checkLevel(zapcore.InfoLevel) {
+		l.logger.Info(message)
+	}
 }
 
-// TODO
+func (l *Logger) Warn(message string) {
+	if l.checkLevel(zapcore.WarnLevel) {
+		l.logger.Warn(message)
+	}
+}
+
+func (l *Logger) Error(message string) {
+	if l.checkLevel(zapcore.ErrorLevel) {
+		l.logger.Error(message)
+	}
+}
+
+func (l *Logger) Fatal(message string) {
+	if l.checkLevel(zapcore.FatalLevel) {
+		l.logger.Fatal(message)
+	}
+}
+
+func (l *Logger) Flush() error {
+	return l.logger.Sync()
+}
+
+func (l *Logger) checkLevel(level zapcore.Level) bool {
+	return l.logger.Core().Enabled(level)
+}
