@@ -2,22 +2,23 @@ package middleware
 
 import (
 	"fmt"
-	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/pkg/shared"
 	"net"
 	"net/http"
 	"time"
+
+	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/pkg/shared"
 )
 
-type loggingResponseWriter struct {
+type LoggingResponseWriter struct {
 	http.ResponseWriter
 	statusCode int
 }
 
-func NewLoggingResponseWriter(w http.ResponseWriter) *loggingResponseWriter {
-	return &loggingResponseWriter{w, http.StatusOK}
+func NewLoggingResponseWriter(w http.ResponseWriter) *LoggingResponseWriter {
+	return &LoggingResponseWriter{w, http.StatusOK}
 }
 
-func (lrw *loggingResponseWriter) WriteHeader(code int) {
+func (lrw *LoggingResponseWriter) WriteHeader(code int) {
 	lrw.statusCode = code
 	lrw.ResponseWriter.WriteHeader(code)
 }

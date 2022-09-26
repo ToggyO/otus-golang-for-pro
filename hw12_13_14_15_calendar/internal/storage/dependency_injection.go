@@ -18,26 +18,29 @@ func AddStorage(
 		return AddInMemoryStorage(ctx, serviceProvider)
 	}
 
-	return AddSqlStorage(ctx, serviceProvider, conf)
+	return AddSQLStorage(ctx, serviceProvider, conf)
 }
 
-func AddSqlStorage(
+func AddSQLStorage(
 	ctx context.Context,
 	serviceProvider shared.IServiceProvider,
 	conf configuration.StorageConf,
 ) error {
 	var err error
 
-	client := sqlstorage.NewDbClient(conf)
+	client := sqlstorage.NewDBClient(conf)
 	if err = client.Connect(ctx); err != nil {
 		return err
 	}
 
-	bindDbClient := func() shared.IDbClient {
+	bindDBClient := func() shared.IDbClient {
 		return client
 	}
 
-	err = serviceProvider.AddService(&shared.ServiceDescriptor{Service: bindDbClient})
+	err = serviceProvider.AddService(&shared.ServiceDescriptor{Service: bindDBClient})
+	if err != nil {
+		return err
+	}
 	err = serviceProvider.AddService(&shared.ServiceDescriptor{Service: sqlstorage.NewEventsRepository})
 	if err != nil {
 		return err

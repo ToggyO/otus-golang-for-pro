@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/pkg/application"
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/pkg/configuration"
 )
@@ -33,7 +34,6 @@ type appRunCmd struct {
 	configPath  string
 	help        bool
 
-	conf               configuration.Configuration
 	startup            application.IStartup
 	applicationBuilder application.IApplicationBuilder
 }
@@ -64,8 +64,7 @@ func (ac *appRunCmd) Description() string {
 }
 
 func (ac *appRunCmd) Init(args []string) error {
-	err := ac.fs.Parse(args)
-	if err != nil {
+	if err := ac.fs.Parse(args); err != nil {
 		return err
 	}
 

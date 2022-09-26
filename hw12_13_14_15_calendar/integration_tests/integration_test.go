@@ -6,9 +6,8 @@ package integration_tests
 import (
 	"testing"
 
-	"github.com/stretchr/testify/suite"
-
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/integration_tests/suites"
+	"github.com/stretchr/testify/suite"
 )
 
 type IntegrationTest struct {

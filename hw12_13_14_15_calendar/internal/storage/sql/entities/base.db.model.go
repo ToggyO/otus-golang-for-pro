@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-type BaseDbModel struct {
+type BaseDBModel struct {
 	CreatedAt time.Time    `db:"created_at"`
 	UpdatedAt sql.NullTime `db:"updated_at"`
 }

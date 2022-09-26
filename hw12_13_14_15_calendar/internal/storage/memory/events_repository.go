@@ -3,16 +3,17 @@ package memorystorage
 import (
 	"context"
 	"fmt"
+	"sync"
+
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/domain/apperrors"
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/domain/models"
 	domain "github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/domain/repositories"
-	"sync"
 )
 
 type eventsRepository struct {
 	mu             *sync.RWMutex
 	events         map[int64]*models.Event
-	lastInsertedId int64
+	lastInsertedID int64
 }
 
 func NewInMemoryEventsRepository() domain.IEventsRepository {
@@ -26,19 +27,23 @@ func (e *eventsRepository) CreateEvent(_ context.Context, eventInfo *models.Even
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
-	e.lastInsertedId++
+	e.lastInsertedID++
 	event := &models.Event{
-		ID:        e.lastInsertedId,
+		ID:        e.lastInsertedID,
 		EventInfo: eventInfo,
 	}
 
-	e.events[e.lastInsertedId] = event
+	e.events[e.lastInsertedID] = event
 
 	// Prevent mutation of original event in memory storage from outer scope
 	return event.Clone(), nil
 }
 
-func (e *eventsRepository) UpdateEvent(_ context.Context, id int64, eventInfo *models.EventInfo) (*models.Event, error) {
+func (e *eventsRepository) UpdateEvent(
+	_ context.Context,
+	id int64,
+	eventInfo *models.EventInfo,
+) (*models.Event, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
@@ -57,11 +62,7 @@ func (e *eventsRepository) UpdateEvent(_ context.Context, id int64, eventInfo *m
 func (e *eventsRepository) DeleteEvent(_ context.Context, id int64) error {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-
-	if _, ok := e.events[id]; ok {
-		delete(e.events, id)
-	}
-
+	delete(e.events, id)
 	return nil
 }
 
@@ -88,7 +89,7 @@ func (e *eventsRepository) GetEventsList(_ context.Context, filter *models.Event
 	return eventsList, nil
 }
 
-func (e *eventsRepository) GetEventById(_ context.Context, id int64) (*models.Event, error) {
+func (e *eventsRepository) GetEventByID(_ context.Context, id int64) (*models.Event, error) {
 	e.mu.RLock()
 	defer e.mu.RUnlock()
 

@@ -8,7 +8,7 @@ import (
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/storage/sql/entities"
 )
 
-func ToEventInfo(dbEventInfo *entities.EventInfoDbModel) (*models.EventInfo, error) {
+func ToEventInfo(dbEventInfo *entities.EventInfoDBModel) (*models.EventInfo, error) {
 	if dbEventInfo == nil {
 		return nil, apperrors.ErrArgumentNil
 	}
@@ -18,19 +18,19 @@ func ToEventInfo(dbEventInfo *entities.EventInfoDbModel) (*models.EventInfo, err
 		StartDate:        dbEventInfo.StartDate,
 		EndDate:          dbEventInfo.EndDate.Time,
 		Description:      dbEventInfo.Description.String,
-		OwnerId:          dbEventInfo.OwnerId,
+		OwnerID:          dbEventInfo.OwnerID,
 		NotificationDate: dbEventInfo.NotificationDate,
 	}
 
 	return eventInfo, nil
 }
 
-func FromEventInfo(eventInfo *models.EventInfo) (*entities.EventInfoDbModel, error) {
+func FromEventInfo(eventInfo *models.EventInfo) (*entities.EventInfoDBModel, error) {
 	if eventInfo == nil {
 		return nil, apperrors.ErrArgumentNil
 	}
 
-	dbEventInfo := &entities.EventInfoDbModel{
+	dbEventInfo := &entities.EventInfoDBModel{
 		Title:     eventInfo.Title,
 		StartDate: eventInfo.StartDate,
 
@@ -44,25 +44,25 @@ func FromEventInfo(eventInfo *models.EventInfo) (*entities.EventInfoDbModel, err
 			Valid:  eventInfo.Description != "",
 		},
 
-		OwnerId:          eventInfo.OwnerId,
+		OwnerID:          eventInfo.OwnerID,
 		NotificationDate: eventInfo.NotificationDate,
 	}
 
 	return dbEventInfo, nil
 }
 
-func ToEvent(eventDbModel *entities.EventDbModel) (*models.Event, error) {
-	if eventDbModel == nil {
+func ToEvent(eventDBModel *entities.EventDBModel) (*models.Event, error) {
+	if eventDBModel == nil {
 		return nil, apperrors.ErrArgumentNil
 	}
 
-	eventInfo, err := ToEventInfo(eventDbModel.EventInfoDbModel)
+	eventInfo, err := ToEventInfo(eventDBModel.EventInfoDBModel)
 	if err != nil {
 		return nil, err
 	}
 
 	event := &models.Event{
-		ID:        eventDbModel.ID,
+		ID:        eventDBModel.ID,
 		EventInfo: eventInfo,
 	}
 

@@ -22,7 +22,7 @@ type EventInfo struct {
 	StartDate        time.Time
 	EndDate          time.Time
 	Description      string
-	OwnerId          int64
+	OwnerID          int64
 	NotificationDate time.Time
 }
 
@@ -32,7 +32,7 @@ func (ei EventInfo) Clone() *EventInfo {
 		StartDate:        ei.StartDate,
 		EndDate:          ei.EndDate,
 		Description:      ei.Description,
-		OwnerId:          ei.OwnerId,
+		OwnerID:          ei.OwnerID,
 		NotificationDate: ei.NotificationDate,
 	}
 }

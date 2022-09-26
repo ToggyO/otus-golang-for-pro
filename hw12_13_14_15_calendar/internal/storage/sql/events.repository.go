@@ -3,18 +3,17 @@ package sqlstorage
 import (
 	"context"
 	"fmt"
-	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/pkg/shared"
 	"reflect"
 	"time"
 
 	"github.com/Masterminds/squirrel"
-	"github.com/jmoiron/sqlx"
-
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/domain/models"
 	domain "github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/domain/repositories"
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/storage/dbconverter"
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/storage/sql/entities"
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/storage/sql/table"
+	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/pkg/shared"
+	"github.com/jmoiron/sqlx"
 )
 
 type eventsRepository struct {
@@ -49,30 +48,33 @@ func (e *eventsRepository) CreateEvent(ctx context.Context, eventInfo *models.Ev
 			dbEventInfo.StartDate,
 			dbEventInfo.EndDate,
 			dbEventInfo.Description,
-			dbEventInfo.OwnerId,
+			dbEventInfo.OwnerID,
 			dbEventInfo.NotificationDate,
 		).ToSql()
-
 	if err != nil {
 		return nil, err
 	}
 
-	var lastInsertedId int64
-	row := e.connection.QueryRowContext(ctx, e.setReturningLastInsertedId(sql, "id"), args...)
-	err = row.Scan(&lastInsertedId)
+	var lastInsertedID int64
+	row := e.connection.QueryRowContext(ctx, e.setReturningLastInsertedID(sql, "id"), args...)
+	err = row.Scan(&lastInsertedID)
 	if err != nil {
 		return nil, err
 	}
 
 	event := &models.Event{
-		ID:        lastInsertedId,
+		ID:        lastInsertedID,
 		EventInfo: eventInfo,
 	}
 
 	return event, nil
 }
 
-func (e *eventsRepository) UpdateEvent(ctx context.Context, id int64, eventInfo *models.EventInfo) (*models.Event, error) {
+func (e *eventsRepository) UpdateEvent(
+	ctx context.Context,
+	id int64,
+	eventInfo *models.EventInfo,
+) (*models.Event, error) {
 	dbEventInfo, err := dbconverter.FromEventInfo(eventInfo)
 	if err != nil {
 		return nil, err
@@ -85,7 +87,7 @@ func (e *eventsRepository) UpdateEvent(ctx context.Context, id int64, eventInfo 
 		Set("start_date", dbEventInfo.StartDate).
 		Set("end_date", dbEventInfo.EndDate).
 		Set("description", dbEventInfo.Description).
-		Set("owner_id", dbEventInfo.OwnerId).
+		Set("owner_id", dbEventInfo.OwnerID).
 		Set("notification_date", dbEventInfo.NotificationDate)
 
 	sql, args, err := builder.ToSql()
@@ -98,7 +100,7 @@ func (e *eventsRepository) UpdateEvent(ctx context.Context, id int64, eventInfo 
 		return nil, err
 	}
 
-	return e.GetEventById(ctx, id)
+	return e.GetEventByID(ctx, id)
 }
 
 func (e *eventsRepository) DeleteEvent(ctx context.Context, id int64) error {
@@ -106,7 +108,6 @@ func (e *eventsRepository) DeleteEvent(ctx context.Context, id int64) error {
 		PlaceholderFormat(squirrel.Dollar).
 		Where(squirrel.Eq{"id": id}).
 		ToSql()
-
 	if err != nil {
 		return err
 	}
@@ -144,14 +145,14 @@ func (e *eventsRepository) GetEventsList(ctx context.Context, filter *models.Eve
 		return nil, err
 	}
 
-	var eventDbModels []*entities.EventDbModel
-	err = e.connection.SelectContext(ctx, &eventDbModels, sql, args...)
+	var eventDBModels []*entities.EventDBModel
+	err = e.connection.SelectContext(ctx, &eventDBModels, sql, args...)
 	if err != nil {
 		return nil, err
 	}
 
-	events := make([]models.Event, 0, len(eventDbModels))
-	for _, dbEv := range eventDbModels {
+	events := make([]models.Event, 0, len(eventDBModels))
+	for _, dbEv := range eventDBModels {
 		ev, err := dbconverter.ToEvent(dbEv)
 		if err != nil {
 			return events[0:0], err
@@ -162,27 +163,26 @@ func (e *eventsRepository) GetEventsList(ctx context.Context, filter *models.Eve
 	return events, nil
 }
 
-func (e *eventsRepository) GetEventById(ctx context.Context, id int64) (*models.Event, error) {
+func (e *eventsRepository) GetEventByID(ctx context.Context, id int64) (*models.Event, error) {
 	sql, args, err := squirrel.Select(e.appendPrimaryKeyToColumns()...).
 		PlaceholderFormat(squirrel.Dollar).
 		From(table.EventTableName).
 		Where(squirrel.Eq{"id": id}).
 		ToSql()
-
 	if err != nil {
 		return nil, err
 	}
 
-	eventDbModel := &entities.EventDbModel{}
-	err = e.connection.GetContext(ctx, eventDbModel, sql, args...)
+	eventDBModel := &entities.EventDBModel{}
+	err = e.connection.GetContext(ctx, eventDBModel, sql, args...)
 	if err != nil {
 		return nil, err
 	}
 
-	return dbconverter.ToEvent(eventDbModel)
+	return dbconverter.ToEvent(eventDBModel)
 }
 
-func (e *eventsRepository) setReturningLastInsertedId(sql, idColumnName string) string {
+func (e *eventsRepository) setReturningLastInsertedID(sql, idColumnName string) string {
 	return sql + fmt.Sprintf("RETURNING %s", idColumnName)
 }
 

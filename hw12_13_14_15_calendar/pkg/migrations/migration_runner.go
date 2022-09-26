@@ -3,7 +3,7 @@ package migrations
 import (
 	"context"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // lint:ignore revive
 	"github.com/pressly/goose"
 )
 

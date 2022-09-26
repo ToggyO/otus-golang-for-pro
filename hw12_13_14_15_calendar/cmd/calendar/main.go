@@ -3,8 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/pkg/commands"
 	"os"
+
+	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/pkg/commands"
 )
 
 func main() {
@@ -16,7 +17,7 @@ func main() {
 
 	rootCmd := commands.NewRootCmd(cmds, defaultCmd)
 
-	var subcommand = ""
+	subcommand := ""
 	var args []string
 	if len(os.Args) > 1 {
 		subcommand = os.Args[1]

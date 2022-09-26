@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -101,7 +102,7 @@ func (a *Application) Run() {
 	}()
 
 	a.logger.Info(fmt.Sprintf("Server started on %s:%d", a.configuration.Host, a.configuration.Port))
-	if err := a.host.Start(a.appCtx); err != nil && err != http.ErrServerClosed {
+	if err := a.host.Start(a.appCtx); err != nil && errors.Is(err, http.ErrServerClosed) {
 		a.logger.Error(fmt.Sprintf("Error occurred while running http server: %s\n", err.Error()))
 		a.appCancel()
 		os.Exit(1) //nolint:gocritic

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/api"
 	infrastructure "github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/infrastructure/services"
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/storage"
@@ -18,9 +19,21 @@ func (s Startup) ConfigureServices(
 	serviceProvider shared.IServiceProvider,
 ) error {
 	err := infrastructure.AddInfrastructureServices(ctx, serviceProvider, configuration)
+	if err != nil {
+		return err
+	}
 	err = storage.AddStorage(ctx, serviceProvider, configuration.Storage)
+	if err != nil {
+		return err
+	}
 	err = storage.AddMigrationRunner(ctx, serviceProvider, configuration.Storage)
-	err = api.AddHttpHandler(ctx, serviceProvider)
+	if err != nil {
+		return err
+	}
+	err = api.AddHTTPHandler(ctx, serviceProvider)
+	if err != nil {
+		return err
+	}
 	return err
 }
 
@@ -42,7 +55,6 @@ func (s Startup) BeforeApplicationShutdown(ctx context.Context, serviceProvider 
 	err := serviceProvider.GetService(func(c shared.IDbClient) {
 		client = c
 	})
-
 	if err != nil {
 		return err
 	}

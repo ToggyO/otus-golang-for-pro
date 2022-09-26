@@ -10,17 +10,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/stretchr/testify/require"
-
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/domain/models"
 	domain "github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/domain/repositories"
+	"github.com/stretchr/testify/require"
 )
 
 func TestInMemoryEventsRepository(t *testing.T) {
 	ctx := context.Background()
 	repo := NewInMemoryEventsRepository()
 
-	seedData(t, ctx, repo)
+	seedData(ctx, t, repo)
 
 	t.Run("get events list", func(t *testing.T) {
 		filter := &models.EventsFilter{
@@ -40,7 +39,7 @@ func TestInMemoryEventsRepository(t *testing.T) {
 
 	t.Run("get by id", func(t *testing.T) {
 		var id int64 = 2
-		event, err := repo.GetEventById(ctx, id)
+		event, err := repo.GetEventByID(ctx, id)
 		require.NoError(t, err)
 		require.NotNil(t, event)
 		require.Equal(t, id, event.ID)
@@ -50,20 +49,26 @@ func TestInMemoryEventsRepository(t *testing.T) {
 		wg := &sync.WaitGroup{}
 		reg := regexp.MustCompile("[0-9]+$")
 
-		updateFunc := func(t *testing.T, ctx context.Context, wg *sync.WaitGroup, index int, repository domain.IEventsRepository) {
+		updateFunc := func(
+			t *testing.T,
+			ctx context.Context,
+			wg *sync.WaitGroup,
+			index int,
+			repository domain.IEventsRepository,
+		) {
+			t.Helper()
 			defer wg.Done()
 			event, err := repository.UpdateEvent(ctx, 1, &models.EventInfo{
 				Title:            fmt.Sprintf("event%d", index),
 				StartDate:        time.Date(2022, time.Month(9), 12, 0, 0, 0, 0, time.UTC),
 				EndDate:          time.Date(2022, time.Month(9), 12, 2, 0, 0, 0, time.UTC),
 				Description:      "Desc",
-				OwnerId:          10,
+				OwnerID:          10,
 				NotificationDate: time.Date(2022, time.Month(9), 11, 10, 0, 0, 0, time.UTC),
 			})
 			require.NoError(t, err)
 
-			s := reg.FindAllString(event.Title, -1)
-			num, err := strconv.Atoi(strings.Join(s, ""))
+			num, _ := strconv.Atoi(strings.Join(reg.FindAllString(event.Title, -1), ""))
 			require.Equal(t, index, num)
 		}
 
@@ -83,12 +88,12 @@ func TestInMemoryEventsRepository(t *testing.T) {
 		err = repo.DeleteEvent(ctx, event.ID)
 		require.NoError(t, err)
 
-		event, err = repo.GetEventById(ctx, event.ID)
+		_, err = repo.GetEventByID(ctx, event.ID)
 		require.Error(t, err)
 	})
 }
 
-func seedData(t *testing.T, ctx context.Context, repository domain.IEventsRepository) {
+func seedData(ctx context.Context, t *testing.T, repository domain.IEventsRepository) {
 	t.Helper()
 
 	eventsInfos := []*models.EventInfo{
@@ -110,7 +115,7 @@ func getEvent(title string) *models.EventInfo {
 		StartDate:        time.Date(2022, time.Month(9), 12, 0, 0, 0, 0, time.UTC),
 		EndDate:          time.Date(2022, time.Month(9), 12, 2, 0, 0, 0, time.UTC),
 		Description:      "Desc",
-		OwnerId:          10,
+		OwnerID:          10,
 		NotificationDate: time.Date(2022, time.Month(9), 11, 10, 0, 0, 0, time.UTC),
 	}
 }

@@ -11,8 +11,8 @@ type Environment string
 
 const (
 	Development Environment = "development"
-	Staging                 = "staging"
-	Production              = "production"
+	Staging     Environment = "staging"
+	Production  Environment = "production"
 )
 
 const DefaultPathToConfigPath = "."

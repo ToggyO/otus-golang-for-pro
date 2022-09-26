@@ -11,37 +11,32 @@ import (
 	lumberjack "gopkg.in/natefinch/lumberjack.v2"
 )
 
-type loggerBuilder struct {
+type Builder struct {
 	minLevel zapcore.Level
 	isDev    bool
 }
 
-func NewLoggerBuilder(level string, isDev bool) *loggerBuilder {
+func NewLoggerBuilder(level string, isDev bool) *Builder {
 	var zapLevel zapcore.Level
 	switch strings.ToLower(level) {
 	case "debug":
 		zapLevel = zapcore.DebugLevel
-		break
 	case "error":
 		zapLevel = zapcore.ErrorLevel
-		break
 	case "warn":
 		zapLevel = zapcore.WarnLevel
-		break
 	case "fatal":
 		zapLevel = zapcore.FatalLevel
-		break
 	default:
 		zapLevel = zapcore.InfoLevel
-		break
 	}
-	return &loggerBuilder{
+	return &Builder{
 		minLevel: zapLevel,
 		isDev:    isDev,
 	}
 }
 
-func (l *loggerBuilder) BuildAdvancedLogger(output io.Writer) *zap.Logger {
+func (l *Builder) BuildAdvancedLogger(output io.Writer) *zap.Logger {
 	encoder := l.getEncoder()
 	writeSyncer := l.getConsoleWriter()
 	if output != nil {
@@ -62,7 +57,7 @@ func (l *loggerBuilder) BuildAdvancedLogger(output io.Writer) *zap.Logger {
 	return zap.New(core)
 }
 
-func (l *loggerBuilder) getEncoder() zapcore.Encoder {
+func (l *Builder) getEncoder() zapcore.Encoder {
 	encoderCfg := zap.NewDevelopmentEncoderConfig()
 	if !l.isDev {
 		encoderCfg = zap.NewProductionEncoderConfig()
@@ -74,15 +69,15 @@ func (l *loggerBuilder) getEncoder() zapcore.Encoder {
 	return zapcore.NewConsoleEncoder(encoderCfg)
 }
 
-func (l *loggerBuilder) getConsoleWriter() zapcore.WriteSyncer {
+func (l *Builder) getConsoleWriter() zapcore.WriteSyncer {
 	return zapcore.AddSync(os.Stdout)
 }
 
-func (l *loggerBuilder) getWriter(writer io.Writer) zapcore.WriteSyncer {
+func (l *Builder) getWriter(writer io.Writer) zapcore.WriteSyncer {
 	return zapcore.AddSync(writer)
 }
 
-func (l *loggerBuilder) getFileWriter(fileName string) zapcore.WriteSyncer {
+func (l *Builder) getFileWriter(fileName string) zapcore.WriteSyncer {
 	lumberJackLogger := &lumberjack.Logger{
 		// TODO: вынести в конфиг?
 		Filename:   fmt.Sprintf("./logs/%s.log", fileName),

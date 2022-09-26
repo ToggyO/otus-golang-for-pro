@@ -30,10 +30,10 @@ test:
 	go test -race ./internal/... ./pkg/...
 
 install-lint-deps:
-	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.41.1
+	#(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.49.0
 
 lint: install-lint-deps
-	golangci-lint run ./...
+	/home/otogushakov/go/bin/golangci-lint run ./...
 
 run-integration-tests:
 	@docker-compose -f deployments/docker-compose.yml -f deployments/docker-compose.stage.yml -f deployments/docker-compose.local.yml \

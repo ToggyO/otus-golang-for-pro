@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/pkg/configuration"
 )
@@ -17,6 +18,9 @@ func NewServer(handler http.Handler, cfg configuration.Configuration) Server {
 		httpServer: &http.Server{
 			Addr:    fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
 			Handler: handler,
+			// TODO: вынести в конфиг
+			ReadTimeout:  5 * time.Second,
+			WriteTimeout: 10 * time.Second,
 		},
 	}
 }

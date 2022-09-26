@@ -5,6 +5,7 @@ import (
 	"errors"
 	"flag"
 	"fmt"
+
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/pkg/configuration"
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/pkg/migrations"
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/pkg/shared"
@@ -22,7 +23,8 @@ Options:
 	-c, --config                Path to configuration file.`
 )
 
-var ErrInvalidMigrateAction = errors.New("invalid action flag provided. Call `<rootcmd> migrate --help` to list possible actions")
+var ErrInvalidMigrateAction = errors.
+	New("invalid action flag provided. Call `<rootcmd> migrate --help` to list possible actions")
 
 type migrateCmd struct {
 	fs *flag.FlagSet
@@ -33,7 +35,6 @@ type migrateCmd struct {
 	configPath  string
 	help        bool
 
-	conf            configuration.StorageConf
 	migrationRunner migrations.IMigrationRunner
 }
 
@@ -67,8 +68,7 @@ func (mc *migrateCmd) Description() string {
 }
 
 func (mc *migrateCmd) Init(args []string) error {
-	err := mc.fs.Parse(args)
-	if err != nil {
+	if err := mc.fs.Parse(args); err != nil {
 		return err
 	}
 
@@ -77,7 +77,8 @@ func (mc *migrateCmd) Init(args []string) error {
 	}
 
 	config := configuration.NewConfiguration(mc.configPath)
-	mc.migrationRunner = migrations.NewMigrationRunner(config.Storage.Dialect, shared.CreatePgConnectionString(config.Storage))
+	mc.migrationRunner = migrations.NewMigrationRunner(config.Storage.Dialect,
+		shared.CreatePgConnectionString(config.Storage))
 
 	return nil
 }

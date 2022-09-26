@@ -8,23 +8,23 @@ import (
 	"github.com/ToggyO/otus-golang-for-pro/hw12_13_14_15_calendar/internal/domain/models"
 )
 
-type EventDbModel struct {
+type EventDBModel struct {
 	ID int64 `db:"id"`
 
-	BaseDbModel       `db:""`
-	*EventInfoDbModel `db:""`
+	BaseDBModel       `db:""`
+	*EventInfoDBModel `db:""`
 }
 
-type EventInfoDbModel struct {
+type EventInfoDBModel struct {
 	Title            string         `db:"title"`
 	StartDate        time.Time      `db:"start_date"`
 	EndDate          sql.NullTime   `db:"end_date"`
 	Description      sql.NullString `db:"description"`
-	OwnerId          int64          `db:"owner_id"`
+	OwnerID          int64          `db:"owner_id"`
 	NotificationDate time.Time      `db:"notification_date"`
 }
 
-func (e EventInfoDbModel) FromEventInfo(eventInfo *models.EventInfo) error {
+func (e *EventInfoDBModel) FromEventInfo(eventInfo *models.EventInfo) error {
 	if eventInfo == nil {
 		return apperrors.ErrArgumentNil
 	}
@@ -42,7 +42,7 @@ func (e EventInfoDbModel) FromEventInfo(eventInfo *models.EventInfo) error {
 		Valid:  eventInfo.Description != "",
 	}
 
-	e.OwnerId = eventInfo.OwnerId
+	e.OwnerID = eventInfo.OwnerID
 	e.NotificationDate = eventInfo.NotificationDate
 
 	return nil
