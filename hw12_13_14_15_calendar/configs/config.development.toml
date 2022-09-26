@@ -1,0 +1,15 @@
+environment = "development"
+host = "0.0.0.0"
+port = 5005
+
+[logger]
+level = "INFO"
+
+[storage]
+inmemory = "false"
+host = "0.0.0.0"
+port = 15334
+user = "calendar_root"
+password = "1111"
+name = "calendar_db"
+dialect = "postgres"

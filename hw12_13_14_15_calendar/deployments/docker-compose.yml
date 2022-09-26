@@ -1,0 +1,9 @@
+version: '3.5'
+
+networks:
+  test_network:
+    driver: bridge
+    internal: true
+
+  external_network:
+    driver: bridge

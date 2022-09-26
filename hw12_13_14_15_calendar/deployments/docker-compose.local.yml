@@ -1,0 +1,26 @@
+version: '3.5'
+
+services:
+  events-postgres-dev:
+    image: postgres:12.1
+    container_name: go-rest-postgres-dev
+    restart: on-failure
+#    env_file:
+#      - ../configs/.env
+    ports:
+      - ${DB_PORT}:5432
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - go-rest-volume-postgres-dev:/var/lib/postgresql/data
+    networks:
+      - test_network
+      - external_network
+
+volumes:
+  go-rest-volume-postgres-dev:
+
+# To start db run following command:
+# docker-compose -f docker-compose.yml -f docker-compose.local.yml --project-directory ../configs/ up -d --build
